@@ -31,7 +31,6 @@ shader_param/u_local_position_2 = Vector2( 0, 0 )
 shader_param/u_time_event_2 = 0.0
 shader_param/u_local_position_3 = Vector2( 0, 0 )
 shader_param/u_time_event_3 = 0.0
-shader_param/wave_type = 0
 
 [node name="Node2D" type="Node2D"]
 position = Vector2( 400, 84 )

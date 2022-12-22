@@ -10,7 +10,7 @@ shader_type canvas_item;
 
 const float speed = 10.0;
 const float u_width_of_wave = 10.00;
-const float max_power_of_wave = 0.01;
+const float max_power_of_wave = 0.005;
 
 uniform vec2 u_rect_size = vec2(64.0,64.0);
 
@@ -23,7 +23,6 @@ uniform float u_time_event_2 = 0.0;
 uniform vec2 u_local_position_3 = vec2(0.0,0.0);
 uniform float u_time_event_3 = 0.0;
 
-uniform int wave_type = 0;
 
 //const vec2 position_in_screen = vec2(500.0,250.0);
 
@@ -160,14 +159,35 @@ void fragment() {
 	vec3  direct_of_wave_with_slope;
 	vec3  direct_of_wave_with_slope_2;
 	vec3  direct_of_wave_with_slope_3;
+
+
 	vec2 change_uv = calc_change_of_uv(u_time_event, u_local_position, UV, direct_of_wave_with_slope);
 	float change_uv_length = length(change_uv);
 	uv += change_uv;
-	//vec4 color_change =  vec4(-0.05,-0.05,-0.05, 1.0)*change_uv_length/max_power_of_wave;
-	
-	vec4 color_change =  vec4(-0.05,-0.05,-0.05, 0.0)*(dot(sun_direction_norm,direct_of_wave_with_slope));
 	uv += calc_change_of_uv(u_time_event_2, u_local_position_2, UV, direct_of_wave_with_slope_2);
 	uv += calc_change_of_uv(u_time_event_3, u_local_position_3, UV, direct_of_wave_with_slope_3 );
+
+	
+	//vec4 color_change =  vec4(-0.05,-0.05,-0.05, 1.0)*change_uv_length/max_power_of_wave;
+	
+	float color_change_intensity_param = 0.05;
+	vec4 color_change_combi = vec4(-1.0,-1.0,-1.0,0.0);
+	float flat_sea_factor = dot(sun_direction_norm,vec3(0.0, 0.0, 1.0)); //Para q lo q no es ola, no cambie
+	float light_factor_of_wave = dot(sun_direction_norm,direct_of_wave_with_slope)-flat_sea_factor;
+	float light_factor_of_wave_2 = dot(sun_direction_norm,direct_of_wave_with_slope_2)-flat_sea_factor;
+	float light_factor_of_wave_3 = dot(sun_direction_norm,direct_of_wave_with_slope_3)-flat_sea_factor;
+	
+//	float medium_factor_of_wave = (light_factor_of_wave + light_factor_of_wave_2 + light_factor_of_wave_3)/3.0;
+	
+	vec4 color_change =  color_change_combi*color_change_intensity_param*light_factor_of_wave;
+	vec4 color_change_2 =  color_change_combi*color_change_intensity_param*light_factor_of_wave_2;
+	vec4 color_change_3 =  color_change_combi*color_change_intensity_param*light_factor_of_wave_3;
+	
+	vec4 sum_of_color_change = color_change;
+	sum_of_color_change+=color_change_2;
+	sum_of_color_change+=color_change_3;
+	
+	
 	
 //	for (int i=0;i<100;i++)
 //	{
@@ -176,10 +196,10 @@ void fragment() {
 //		uv += calc_change_of_uv(u_time_event+time_increment, u_local_position+position_increment, UV );
 //	}
 	
-	COLOR = texture(SCREEN_TEXTURE,uv);
+//	COLOR = texture(SCREEN_TEXTURE,uv);
 	
 	vec4 text_color = texture(SCREEN_TEXTURE,uv);
-	COLOR = text_color+color_change;
+	COLOR = text_color+sum_of_color_change;
 	
 	//COLOR = texture(TEXTURE,UV);
 	//vec2 texture_resolution = 1.0/TEXTURE_PIXEL_SIZE;
