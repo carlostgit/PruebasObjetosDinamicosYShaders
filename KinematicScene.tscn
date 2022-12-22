@@ -24,6 +24,9 @@ shader_param/height = 0.003
 
 [sub_resource type="ShaderMaterial" id=8]
 shader = ExtResource( 3 )
+shader_param/rect_size = Vector2( 64, 64 )
+shader_param/local_position = Vector2( 0, 0 )
+shader_param/time_event = 0.0
 
 [node name="Node2D" type="Node2D"]
 position = Vector2( 400, 84 )
@@ -96,11 +99,12 @@ margin_top = -99.0
 margin_right = 470.0
 margin_bottom = 435.0
 
-[node name="ColorRectWithShader" type="Sprite" parent="."]
+[node name="ColorRectWithShader" type="ColorRect" parent="."]
 material = SubResource( 8 )
-position = Vector2( -94, 178 )
-scale = Vector2( 2.84375, 2.53125 )
-texture = ExtResource( 1 )
+margin_left = -340.0
+margin_top = 86.0
+margin_right = 28.0
+margin_bottom = 368.0
 script = ExtResource( 5 )
 
 [connection signal="item_rect_changed" from="ColorRectWithShader" to="ColorRectWithShader" method="_on_ColorRectWithShader_item_rect_changed"]

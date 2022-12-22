@@ -1,4 +1,4 @@
-extends Sprite
+extends ColorRect
 
 
 # Declare member variables here. Examples:
@@ -8,8 +8,8 @@ extends Sprite
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	#var rect_size = self.get_rect().size
-	var rect_size = self.get_rect().size*self.scale
+	var rect_size = self.get_rect().size
+#	var rect_size = self.get_rect().size*self.scale
 	material.set_shader_param("rect_size", rect_size)
 	pass # Replace with function body.
 
@@ -21,9 +21,10 @@ func _ready():
 
 func _on_ColorRectWithShader_item_rect_changed():
 	
-	#var rect_size = self.get_rect().size
-	var rect_size = self.get_rect().size*self.scale
+	var rect_size = self.get_rect().size
+	#var rect_size = self.get_rect().size*self.scale
 	material.set_shader_param("rect_size", rect_size)
+	
 	pass # Replace with function body.
 
 
@@ -32,8 +33,8 @@ func _input(event):
 	if event is InputEventMouseButton:
 		print("Mouse Click/Unclick at: ", event.position)
 		print("Local Mouse Motion at: ", self.get_local_mouse_position())
-		print("Local using to_local: ", self.to_local(self.get_global_mouse_position()))
-		print("Position in parent: ", self.position)
+		#print("Local using to_local: ", self.to_local(self.get_global_mouse_position()))
+#		print("Position in parent: ", self.position)
 		#print("Global transf with canv: ", self.get_global_transform_with_canvas())
 		##rint("Global transf: ", self.get_global_transform())
 		var screen_coord_0 = get_viewport_transform() * (get_global_transform() * Vector2(0,0))
@@ -43,6 +44,12 @@ func _input(event):
 		#y cuidado también con el orden de las transformaciones
 		var local_from_screen = get_global_transform().affine_inverse()*((get_viewport_transform().affine_inverse())*(event.position))
 		print("Local from screen mouse position: ", local_from_screen)
+		
+		material.set_shader_param("local_position", local_from_screen)
+	
+		var time_event  = (float(OS.get_ticks_msec())/1000.0)
+		#var time_event = Time.get_unix_time_from_system()
+		material.set_shader_param("time_event", time_event)
 		
 		#var global_coord_0 = (get_global_transform() * Vector2(0,0))
 		#print("Local 0 with get_global_transform(): ", global_coord_0)

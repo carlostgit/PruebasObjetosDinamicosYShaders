@@ -11,9 +11,10 @@ shader_type canvas_item;
 const float speed = 10.0;
 const float width_of_wave = 10.00;
 const float max_power_of_wave = 0.1;
-const vec2 rect_size = vec2(64.0,64.0);
 
-const vec2 position_in_local = vec2(0.0,0.0);
+uniform vec2 rect_size = vec2(64.0,64.0);
+uniform vec2 local_position = vec2(0.0,0.0);
+uniform float time_event = 0.0;
 
 //const vec2 position_in_screen = vec2(500.0,250.0);
 
@@ -27,13 +28,15 @@ float get_power_of_wave(in vec2 position, in vec2 uv, in vec2 resolution, in flo
 	
 	//Ahora tenemos tamaño constante para la pantalla
 	
-	cPos -= vec2(resolution.x/2.0,resolution.y/2.0);
+	//cPos -= vec2(resolution.x/2.0,resolution.y/2.0);
+	cPos -= vec2(0.0,0.0);
 	
-	cPos -= vec2(position.x,-position.y);
+	cPos -= vec2(position.x,position.y);
 	
 	float cLength = length(cPos);
 	
-	float elapsed_time = 10.0*(time/10.0-floor(time/10.0));
+	//float elapsed_time = 10.0*(time/10.0-floor(time/10.0));
+	float elapsed_time = time;
 	
 	float dist_of_wave =  (elapsed_time*speed);
 	
@@ -57,13 +60,15 @@ void fragment() {
 	for (int i=0; i<1; i++)
 	{
 		
-		vec2 position = position_in_local;
+		vec2 position = local_position;
 		position.x = position.x + float(i*10);
 		//vec2 resolution = 1.0/SCREEN_PIXEL_SIZE;
 		vec2 resolution = rect_size;
 		
+		float time_wave = TIME-time_event;
+		
 		vec2 direct_of_wave;
-		float power_of_wave = get_power_of_wave(position, UV, resolution, TIME, direct_of_wave);
+		float power_of_wave = get_power_of_wave(position, UV, resolution, time_wave, direct_of_wave);
 		if(power_of_wave!=0.0)
 		{
 			vec2 change_of_uv = max_power_of_wave*power_of_wave*direct_of_wave;
@@ -72,7 +77,7 @@ void fragment() {
 		}
 	}
 	COLOR = texture(SCREEN_TEXTURE,uv);
-	COLOR = texture(TEXTURE,UV);
+	//COLOR = texture(TEXTURE,UV);
 	//vec2 texture_resolution = 1.0/TEXTURE_PIXEL_SIZE;
 	//vec2 texture_res_cent = texture_resolution/1.2;
 	//COLOR.b = step(UV.y,texture_res_cent.x);
