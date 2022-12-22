@@ -5,12 +5,14 @@ extends ColorRect
 # var a = 2
 # var b = "text"
 
+var wave_index = 0
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	var rect_size = self.get_rect().size
 #	var rect_size = self.get_rect().size*self.scale
-	material.set_shader_param("rect_size", rect_size)
+	material.set_shader_param("u_rect_size", rect_size)
 	pass # Replace with function body.
 
 
@@ -23,7 +25,7 @@ func _on_ColorRectWithShader_item_rect_changed():
 	
 	var rect_size = self.get_rect().size
 	#var rect_size = self.get_rect().size*self.scale
-	material.set_shader_param("rect_size", rect_size)
+	material.set_shader_param("u_rect_size", rect_size)
 	
 	pass # Replace with function body.
 
@@ -45,11 +47,23 @@ func _input(event):
 		var local_from_screen = get_global_transform().affine_inverse()*((get_viewport_transform().affine_inverse())*(event.position))
 		print("Local from screen mouse position: ", local_from_screen)
 		
-		material.set_shader_param("local_position", local_from_screen)
-	
-		var time_event  = (float(OS.get_ticks_msec())/1000.0)
-		#var time_event = Time.get_unix_time_from_system()
-		material.set_shader_param("time_event", time_event)
+		if (event.pressed):
+			
+			var time_event  = (float(OS.get_ticks_msec())/1000.0)
+			#var time_event = Time.get_unix_time_from_system()
+			if (0==wave_index):
+				material.set_shader_param("u_time_event", time_event)
+				material.set_shader_param("u_local_position", local_from_screen)
+				wave_index = 1
+			elif(1==wave_index):
+				material.set_shader_param("u_time_event_2", time_event)
+				material.set_shader_param("u_local_position_2", local_from_screen)
+				wave_index =2
+			else:
+				material.set_shader_param("u_time_event_3", time_event)
+				material.set_shader_param("u_local_position_3", local_from_screen)
+				wave_index =0
+				
 		
 		#var global_coord_0 = (get_global_transform() * Vector2(0,0))
 		#print("Local 0 with get_global_transform(): ", global_coord_0)
