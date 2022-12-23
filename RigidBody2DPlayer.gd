@@ -8,6 +8,9 @@ extends RigidBody2D
 var _applying_torque = 0.0
 var _applying_force = Vector2(0.0,0.0)
 
+#El barco avanzará más fácl en sentido longitudinal que lateral
+var _affecting_extra_lateral_damp_force = Vector2(0.0,0.0)
+
 var _left_key = false
 var _right_key = false
 var _up_key = false
@@ -15,10 +18,23 @@ var _down_key = false
 var _home_key = false
 var _end_key = false
 
+#para debugear
+var _line_2D_local:Line2D = null
+var _line_2D:Line2D = null
+var _line_2D_damp_force:Line2D = null
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	
+	_line_2D_local = Line2D.new()
+	_line_2D = Line2D.new()
+	_line_2D_damp_force = Line2D.new()
 
+	self.get_parent().call_deferred("add_child",_line_2D_local)
+	self.get_parent().call_deferred("add_child",_line_2D)
+	self.get_parent().call_deferred("add_child",_line_2D_damp_force)
+	
+	pass # Replace with function body.
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -47,6 +63,8 @@ func _process(delta):
 	
 	self.apply_force(sum_of_force)
 	self.apply_torque(sum_of_torque)
+	
+	apply_lateral_damp_force()
 		
 
 #	pass
@@ -105,3 +123,44 @@ func reset_torque():
 	self.add_torque(-_applying_torque)
 	_applying_torque = 0.0
 
+func apply_lateral_damp_force():
+	var lateral_dir_vector = Vector2(1.0,0.0)
+	var local_lateral_dir_vector = self.transform.basis_xform(lateral_dir_vector)	
+	
+	#
+	
+	_line_2D_local.clear_points()
+	_line_2D.clear_points()
+	_line_2D_damp_force.clear_points()
+	
+	_line_2D_local.add_point(Vector2(0,0))
+	_line_2D_local.add_point(local_lateral_dir_vector*100)
+	
+	_line_2D.add_point(Vector2(0,0))
+	_line_2D.add_point(lateral_dir_vector*100)
+	_line_2D.default_color = Color(1.0,0.0,0.0)
+	
+	
+	_line_2D_damp_force.add_point(Vector2(0,0))
+	_line_2D_damp_force.add_point(_affecting_extra_lateral_damp_force*100)
+	_line_2D_damp_force.default_color = Color(0.0,1.0,0.0)
+	
+	#
+	
+	var lateral_velocity_amount = local_lateral_dir_vector.dot(self.linear_velocity)
+	var lateral_velocity = lateral_velocity_amount*local_lateral_dir_vector
+	
+	var lateral_force_to_apply = Vector2(0.0, 0.0)
+	
+	var damp_factor = 1.0
+	if(abs(lateral_velocity.length())>0.1):
+		lateral_force_to_apply = -damp_factor*lateral_velocity
+	
+	reset_affecting_extra_lateral_damp_force()	
+	_affecting_extra_lateral_damp_force = lateral_force_to_apply	
+	self.add_central_force(lateral_force_to_apply)
+	
+func reset_affecting_extra_lateral_damp_force():
+	self.add_central_force(-_affecting_extra_lateral_damp_force)
+	_affecting_extra_lateral_damp_force = Vector2(0.0,0.0)
+	
