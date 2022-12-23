@@ -86,7 +86,9 @@ func _input(event):
 func apply_force(var vector_force):
 	reset_force()
 	#self.transform.basis.xform
-	var vector_local_force = self.transform.basis_xform(vector_force)
+	#Eso de basis_xform hace que solo se coja la parte de la rotación y escalado de la matriz transform
+	#Así orientamos nuestro vector de fuerzas a valores locales de nuestro nodo RigidBody
+	var vector_local_force = self.transform.basis_xform(vector_force)	
 	_applying_force = vector_local_force
 	self.add_central_force(vector_local_force)
 	

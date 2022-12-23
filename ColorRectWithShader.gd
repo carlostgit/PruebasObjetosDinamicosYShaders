@@ -42,6 +42,11 @@ func _input(event):
 		var screen_coord_0 = get_viewport_transform() * (get_global_transform() * Vector2(0,0))
 		print("Local 0 to global: ", screen_coord_0)
 		
+		#No existe transform para un ColorRect	
+#		var local_from_screen_with_transform = self.transform.basis_xform((event.position))
+#		print("Local from screen mouse position transform: ", local_from_screen_with_transform)
+		
+		
 		#El truco para q pasar a local funcione es el affine (q es necesario cuando hay escalado)
 		#y cuidado también con el orden de las transformaciones
 		var local_from_screen = get_global_transform().affine_inverse()*((get_viewport_transform().affine_inverse())*(event.position))

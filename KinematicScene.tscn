@@ -139,10 +139,10 @@ margin_bottom = 793.0
 
 [node name="ColorRectWithShader" type="ColorRect" parent="."]
 material = SubResource( 8 )
-margin_left = -626.0
-margin_top = 376.0
-margin_right = -258.0
-margin_bottom = 658.0
+margin_left = -44.0
+margin_top = -36.0
+margin_right = 324.0
+margin_bottom = 246.0
 script = ExtResource( 5 )
 
 [connection signal="item_rect_changed" from="ColorRectWithShader" to="ColorRectWithShader" method="_on_ColorRectWithShader_item_rect_changed"]
