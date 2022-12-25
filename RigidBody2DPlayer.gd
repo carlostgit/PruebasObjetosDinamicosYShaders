@@ -22,6 +22,7 @@ var _end_key = false
 var _line_2D_local:Line2D = null
 var _line_2D:Line2D = null
 var _line_2D_damp_force:Line2D = null
+var _line_2D_to_click:Line2D = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -29,10 +30,12 @@ func _ready():
 	_line_2D_local = Line2D.new()
 	_line_2D = Line2D.new()
 	_line_2D_damp_force = Line2D.new()
+	_line_2D_to_click = Line2D.new()
 
 	self.get_parent().call_deferred("add_child",_line_2D_local)
 	self.get_parent().call_deferred("add_child",_line_2D)
 	self.get_parent().call_deferred("add_child",_line_2D_damp_force)
+	self.get_parent().call_deferred("add_child",_line_2D_to_click)
 	
 	pass # Replace with function body.
 
@@ -101,6 +104,24 @@ func _input(event):
 	if event is InputEventKey and event.is_action_released("ui_end"):
 		_end_key = false;
 
+	if event is InputEventMouseButton:
+		_line_2D_to_click.clear_points()
+		_line_2D_to_click.add_point(self.position)
+#		_line_2D_to_click.add_point(self.get_global_mouse_position())
+		_line_2D_to_click.add_point(self.get_parent().get_local_mouse_position())
+		
+		var lateral_dir_vector = Vector2(1.0,0.0)
+		var local_lateral_dir_vector = self.transform.basis_xform(lateral_dir_vector)	
+		
+		var to_click_vector = self.get_parent().get_local_mouse_position() - self.position
+		var horizontal_proyection_length = lateral_dir_vector.dot(to_click_vector)
+		
+		if(horizontal_proyection_length > 0.0):
+			_line_2D_to_click.default_color = Color(1,0,0)
+		else:
+			_line_2D_to_click.default_color = Color(0,1,0)
+		
+
 func apply_force(var vector_force):
 	reset_force()
 	#self.transform.basis.xform
@@ -128,23 +149,22 @@ func apply_lateral_damp_force():
 	var local_lateral_dir_vector = self.transform.basis_xform(lateral_dir_vector)	
 	
 	#
-	
 	_line_2D_local.clear_points()
 	_line_2D.clear_points()
 	_line_2D_damp_force.clear_points()
 	
-	_line_2D_local.add_point(Vector2(0,0))
-	_line_2D_local.add_point(local_lateral_dir_vector*100)
 	
-	_line_2D.add_point(Vector2(0,0))
-	_line_2D.add_point(lateral_dir_vector*100)
+	_line_2D_local.add_point(self.position + Vector2(0,0))
+	_line_2D_local.add_point(self.position + local_lateral_dir_vector*100)
+	
+	
+	_line_2D.add_point(self.position + Vector2(0,0))
+	_line_2D.add_point(self.position + lateral_dir_vector*100)
 	_line_2D.default_color = Color(1.0,0.0,0.0)
 	
-	
-	_line_2D_damp_force.add_point(Vector2(0,0))
-	_line_2D_damp_force.add_point(_affecting_extra_lateral_damp_force*100)
+	_line_2D_damp_force.add_point(self.position + Vector2(0,0))
+	_line_2D_damp_force.add_point(self.position + _affecting_extra_lateral_damp_force*100)
 	_line_2D_damp_force.default_color = Color(0.0,1.0,0.0)
-	
 	#
 	
 	var lateral_velocity_amount = local_lateral_dir_vector.dot(self.linear_velocity)
@@ -164,3 +184,7 @@ func reset_affecting_extra_lateral_damp_force():
 	self.add_central_force(-_affecting_extra_lateral_damp_force)
 	_affecting_extra_lateral_damp_force = Vector2(0.0,0.0)
 	
+
+
+
+pass # Replace with function body.
