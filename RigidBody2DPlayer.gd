@@ -18,11 +18,15 @@ var _down_key = false
 var _home_key = false
 var _end_key = false
 
+var _last_row_point:Vector2 = Vector2()
+var _last_row_point_time:float = 0.0
+
 #para debugear
 var _line_2D_local:Line2D = null
 var _line_2D:Line2D = null
 var _line_2D_damp_force:Line2D = null
 var _line_2D_to_click:Line2D = null
+var _line_2D_from_click_to_unclick:Line2D = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -31,11 +35,13 @@ func _ready():
 	_line_2D = Line2D.new()
 	_line_2D_damp_force = Line2D.new()
 	_line_2D_to_click = Line2D.new()
+	_line_2D_from_click_to_unclick = Line2D.new()
 
 	self.get_parent().call_deferred("add_child",_line_2D_local)
 	self.get_parent().call_deferred("add_child",_line_2D)
 	self.get_parent().call_deferred("add_child",_line_2D_damp_force)
 	self.get_parent().call_deferred("add_child",_line_2D_to_click)
+	self.get_parent().call_deferred("add_child",_line_2D_from_click_to_unclick)
 	
 	pass # Replace with function body.
 
@@ -121,6 +127,28 @@ func _input(event):
 		else:
 			_line_2D_to_click.default_color = Color(0,1,0)
 		
+#		if event.pressed:
+#			_line_2D_from_click_to_unclick.clear_points()
+#			_line_2D_from_click_to_unclick.add_point(self.get_parent().get_local_mouse_position())
+#		else:
+#			_line_2D_from_click_to_unclick.add_point(self.get_parent().get_local_mouse_position())
+			
+		if event.pressed:
+			_last_row_point_time = float(Time.get_ticks_msec())*0.001
+			_last_row_point = self.get_parent().get_local_mouse_position()
+		else:
+			if 0.0 !=_last_row_point_time:
+				var new_row_point_time = float(Time.get_ticks_msec())*0.001
+				var new_row_point = self.get_parent().get_local_mouse_position()
+				_line_2D_from_click_to_unclick.clear_points()
+				_line_2D_from_click_to_unclick.default_color = Color(1,0.5,0.5)
+				_line_2D_from_click_to_unclick.add_point(_last_row_point)
+				_line_2D_from_click_to_unclick.add_point(new_row_point)
+				var row_movement_vect = new_row_point-_last_row_point
+				var elapsed_time = new_row_point_time - _last_row_point_time
+				var row_position = self.get_parent().get_local_mouse_position()
+				apply_force_for_row_movement(row_movement_vect,row_position,elapsed_time)
+				
 
 func apply_force(var vector_force):
 	reset_force()
@@ -184,7 +212,12 @@ func reset_affecting_extra_lateral_damp_force():
 	self.add_central_force(-_affecting_extra_lateral_damp_force)
 	_affecting_extra_lateral_damp_force = Vector2(0.0,0.0)
 	
-
-
-
-pass # Replace with function body.
+func apply_force_for_row_movement(row_movement_vect:Vector2 ,row_position:Vector2, elapsed_time:float):
+	#var speed_of_row:float = row_movement_vect.length()/elapsed_time;
+	var row_force_factor = 0.01
+	var force_vec:Vector2 = -row_movement_vect*row_force_factor
+	var vec_to_row:Vector2 = row_position - self.position
+#	var torque:float = vec_to_row.cross(force_vec)
+#	self.apply_torque_impulse(torque)
+#	self.apply_central_impulse(force_vec)
+	self.apply_impulse(vec_to_row,force_vec)
