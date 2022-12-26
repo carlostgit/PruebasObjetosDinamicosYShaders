@@ -33,6 +33,8 @@ var _line_2D_from_click_to_unclick:Line2D = null
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	
+#	self.inertia = 5.0*self.inertia
+	
 	_line_2D_local = Line2D.new()
 	_line_2D = Line2D.new()
 	_line_2D_damp_force = Line2D.new()
@@ -237,7 +239,9 @@ func apply_force_for_row_movement(row_movement_vect:Vector2 ,row_position:Vector
 	var row_force_factor = 0.01
 	var force_vec:Vector2 = -row_movement_vect*row_force_factor
 	var vec_to_row:Vector2 = row_position - self.position
-#	var torque:float = vec_to_row.cross(force_vec)
-#	self.apply_torque_impulse(torque)
-#	self.apply_central_impulse(force_vec)
-	self.apply_impulse(vec_to_row,force_vec)
+	var inertia_tensor_multiplier_param = 5.0;
+	var torque:float = vec_to_row.cross(force_vec)
+	torque = torque/inertia_tensor_multiplier_param
+	self.apply_torque_impulse(torque)
+	self.apply_central_impulse(force_vec)
+#	self.apply_impulse(vec_to_row,force_vec)
