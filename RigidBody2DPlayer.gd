@@ -18,6 +18,8 @@ var _down_key = false
 var _home_key = false
 var _end_key = false
 
+var _mouse_pressed = false
+
 var _last_row_point:Vector2 = Vector2()
 var _last_row_point_time:float = 0.0
 
@@ -136,7 +138,24 @@ func _input(event):
 		if event.pressed:
 			_last_row_point_time = float(Time.get_ticks_msec())*0.001
 			_last_row_point = self.get_parent().get_local_mouse_position()
+			_mouse_pressed = true
 		else:
+			_mouse_pressed = false
+#			if 0.0 !=_last_row_point_time:
+#				var new_row_point_time = float(Time.get_ticks_msec())*0.001
+#				var new_row_point = self.get_parent().get_local_mouse_position()
+#				_line_2D_from_click_to_unclick.clear_points()
+#				_line_2D_from_click_to_unclick.default_color = Color(1,0.5,0.5)
+#				_line_2D_from_click_to_unclick.add_point(_last_row_point)
+#				_line_2D_from_click_to_unclick.add_point(new_row_point)
+#				var row_movement_vect = new_row_point-_last_row_point
+#				var elapsed_time = new_row_point_time - _last_row_point_time
+#				var row_position = self.get_parent().get_local_mouse_position()
+#				apply_force_for_row_movement(row_movement_vect,row_position,elapsed_time)
+		
+	if event is InputEventMouseMotion:
+#		print("Mouse Motion at: ", event.position)
+		if _mouse_pressed:
 			if 0.0 !=_last_row_point_time:
 				var new_row_point_time = float(Time.get_ticks_msec())*0.001
 				var new_row_point = self.get_parent().get_local_mouse_position()
@@ -148,7 +167,8 @@ func _input(event):
 				var elapsed_time = new_row_point_time - _last_row_point_time
 				var row_position = self.get_parent().get_local_mouse_position()
 				apply_force_for_row_movement(row_movement_vect,row_position,elapsed_time)
-				
+				_last_row_point_time = float(Time.get_ticks_msec())*0.001
+				_last_row_point = self.get_parent().get_local_mouse_position()
 
 func apply_force(var vector_force):
 	reset_force()
