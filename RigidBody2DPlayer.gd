@@ -23,6 +23,8 @@ var _mouse_pressed = false
 var _last_row_point:Vector2 = Vector2()
 var _last_row_point_time:float = 0.0
 
+#var _last_mouse_pressed_position = Vector2(0.0,0.0)
+
 #para debugear
 var _line_2D_local:Line2D = null
 var _line_2D:Line2D = null
@@ -78,7 +80,25 @@ func _process(delta):
 	self.apply_torque(sum_of_torque)
 	
 	apply_lateral_damp_force()
-		
+	
+	
+	if _mouse_pressed:
+		if 0.0 !=_last_row_point_time:
+#			var new_row_point_time = float(Time.get_ticks_msec())*0.001
+			var new_row_point = self.get_parent().get_local_mouse_position()
+			_line_2D_from_click_to_unclick.clear_points()
+			_line_2D_from_click_to_unclick.default_color = Color(1,0.5,0.5, 0.3)
+			_line_2D_from_click_to_unclick.add_point(_last_row_point)
+			_line_2D_from_click_to_unclick.add_point(new_row_point)
+			var row_movement_vect = new_row_point-_last_row_point
+#			var elapsed_time = new_row_point_time - _last_row_point_time
+			var row_position = self.get_parent().get_local_mouse_position()
+			apply_force_for_row_movement(row_movement_vect,row_position,delta)
+			_last_row_point_time = float(Time.get_ticks_msec())*0.001
+			_last_row_point = self.get_parent().get_local_mouse_position()
+			
+			change_row_position(row_movement_vect ,row_position)
+	
 
 #	pass
 
@@ -127,9 +147,9 @@ func _input(event):
 		var horizontal_proyection_length = lateral_dir_vector.dot(to_click_vector)
 		
 		if(horizontal_proyection_length > 0.0):
-			_line_2D_to_click.default_color = Color(1,0,0)
+			_line_2D_to_click.default_color = Color(1,0,0,0.3)
 		else:
-			_line_2D_to_click.default_color = Color(0,1,0)
+			_line_2D_to_click.default_color = Color(0,1,0,0.3)
 		
 #		if event.pressed:
 #			_line_2D_from_click_to_unclick.clear_points()
@@ -143,6 +163,10 @@ func _input(event):
 			_mouse_pressed = true
 		else:
 			_mouse_pressed = false
+			
+#			$Row.modulate = Color(1.0,1.0,1.0,1.5)
+			$Row/RightPaddle.modulate = Color(1.0,1.0,1.0,1.0)
+			$Row/LeftPaddle.modulate = Color(1.0,1.0,1.0,1.0)
 #			if 0.0 !=_last_row_point_time:
 #				var new_row_point_time = float(Time.get_ticks_msec())*0.001
 #				var new_row_point = self.get_parent().get_local_mouse_position()
@@ -155,22 +179,24 @@ func _input(event):
 #				var row_position = self.get_parent().get_local_mouse_position()
 #				apply_force_for_row_movement(row_movement_vect,row_position,elapsed_time)
 		
-	if event is InputEventMouseMotion:
-#		print("Mouse Motion at: ", event.position)
-		if _mouse_pressed:
-			if 0.0 !=_last_row_point_time:
-				var new_row_point_time = float(Time.get_ticks_msec())*0.001
-				var new_row_point = self.get_parent().get_local_mouse_position()
-				_line_2D_from_click_to_unclick.clear_points()
-				_line_2D_from_click_to_unclick.default_color = Color(1,0.5,0.5)
-				_line_2D_from_click_to_unclick.add_point(_last_row_point)
-				_line_2D_from_click_to_unclick.add_point(new_row_point)
-				var row_movement_vect = new_row_point-_last_row_point
-				var elapsed_time = new_row_point_time - _last_row_point_time
-				var row_position = self.get_parent().get_local_mouse_position()
-				apply_force_for_row_movement(row_movement_vect,row_position,elapsed_time)
-				_last_row_point_time = float(Time.get_ticks_msec())*0.001
-				_last_row_point = self.get_parent().get_local_mouse_position()
+#	if event is InputEventMouseMotion:
+##		print("Mouse Motion at: ", event.position)
+#		if _mouse_pressed:
+#			if 0.0 !=_last_row_point_time:
+#				var new_row_point_time = float(Time.get_ticks_msec())*0.001
+#				var new_row_point = self.get_parent().get_local_mouse_position()
+#				_line_2D_from_click_to_unclick.clear_points()
+#				_line_2D_from_click_to_unclick.default_color = Color(1,0.5,0.5, 0.3)
+#				_line_2D_from_click_to_unclick.add_point(_last_row_point)
+#				_line_2D_from_click_to_unclick.add_point(new_row_point)
+#				var row_movement_vect = new_row_point-_last_row_point
+#				var elapsed_time = new_row_point_time - _last_row_point_time
+#				var row_position = self.get_parent().get_local_mouse_position()
+#				apply_force_for_row_movement(row_movement_vect,row_position,elapsed_time)
+#				_last_row_point_time = float(Time.get_ticks_msec())*0.001
+#				_last_row_point = self.get_parent().get_local_mouse_position()
+#
+#				change_row_position(row_movement_vect ,row_position)
 
 func apply_force(var vector_force):
 	reset_force()
@@ -206,15 +232,15 @@ func apply_lateral_damp_force():
 	
 	_line_2D_local.add_point(self.position + Vector2(0,0))
 	_line_2D_local.add_point(self.position + local_lateral_dir_vector*100)
-	
+	_line_2D_local.default_color = Color(1,1,0,0.3)
 	
 	_line_2D.add_point(self.position + Vector2(0,0))
 	_line_2D.add_point(self.position + lateral_dir_vector*100)
-	_line_2D.default_color = Color(1.0,0.0,0.0)
+	_line_2D.default_color = Color(1.0,0.0,0.0,0.3)
 	
 	_line_2D_damp_force.add_point(self.position + Vector2(0,0))
 	_line_2D_damp_force.add_point(self.position + _affecting_extra_lateral_damp_force*100)
-	_line_2D_damp_force.default_color = Color(0.0,1.0,0.0)
+	_line_2D_damp_force.default_color = Color(0.0,1.0,0.0,0.3)
 	#
 	
 	var lateral_velocity_amount = local_lateral_dir_vector.dot(self.linear_velocity)
@@ -245,3 +271,36 @@ func apply_force_for_row_movement(row_movement_vect:Vector2 ,row_position:Vector
 	self.apply_torque_impulse(torque)
 	self.apply_central_impulse(force_vec)
 #	self.apply_impulse(vec_to_row,force_vec)
+
+	
+func change_row_position(row_movement_vect:Vector2 ,row_position:Vector2):
+	#var speed_of_row:float = row_movement_vect.length()/elapsed_time;
+	var vec_to_row:Vector2 = row_position - self.position
+	var angle = atan2(vec_to_row.y, vec_to_row.x)
+	#var angle = $Row.get_angle_to(row_position)
+	#$Row.rotation = angle
+	#$Row.rotation = angle
+	$Row.rotation = angle-self.rotation
+
+	#Ahora: Hundir o no la pala que se está usando y elegir pala izquierda o derecha
+	var lateral_dir_vector = Vector2(1.0,0.0)
+	var local_lateral_dir_vector = self.transform.basis_xform(lateral_dir_vector)	
+	var horizontal_distance = local_lateral_dir_vector.dot(vec_to_row)
+	if horizontal_distance>0:
+		$Row/RightPaddle.modulate = Color(1.0,1.0,1.0,0.5)
+		$Row/LeftPaddle.modulate = Color(1.0,1.0,1.0,1.0)
+	else:
+		$Row.rotation = $Row.rotation + PI
+		$Row/RightPaddle.modulate = Color(1.0,1.0,1.0,0.5)
+		$Row/LeftPaddle.modulate = Color(1.0,1.0,1.0,0.5)
+		
+	#Ahora la posición del brazo
+	#La ida es que el segundo punto del brazo, debería tenr siempre la posición de la mano
+	
+	#Para pasar de global a local hay que usar get_global_transform().affine_inverse()
+	var left_hand_position_in_player = get_global_transform().affine_inverse()*($Row/LeftHand.global_position)
+	$Line2DLeftArm.set_point_position(0,left_hand_position_in_player)
+	
+	var right_hand_position_in_player = get_global_transform().affine_inverse()*($Row/RightHand.global_position)
+	$Line2DRightArm.set_point_position(0,right_hand_position_in_player)
+	
