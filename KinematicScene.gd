@@ -35,7 +35,7 @@ func _input(event):
 			#print("Global transf with canv: ", self.get_global_transform_with_canvas())
 			##rint("Global transf: ", self.get_global_transform())
 			var screen_coord_0 = get_viewport_transform() * (get_global_transform() * Vector2(0,0))
-			print("Local 0 to global: ", screen_coord_0)
+			print("Local 0 to screen: ", screen_coord_0)
 			
 			#No existe transform para un ColorRect	
 	#		var local_from_screen_with_transform = self.transform.basis_xform((event.position))

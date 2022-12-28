@@ -8,8 +8,8 @@ shader_type canvas_item;
 //uniform float height : hint_range(0.0, 0.1, 0.001) = 0.003;
 
 
-const float speed = 10.0;
-const float u_width_of_wave = 10.00;
+const float speed = 50.0;
+const float u_width_of_wave = 50.00;
 const float max_power_of_wave = 0.005;
 
 uniform vec2 u_rect_size = vec2(64.0,64.0);
@@ -23,8 +23,20 @@ uniform float u_time_event_2 = 0.0;
 uniform vec2 u_local_position_3 = vec2(0.0,0.0);
 uniform float u_time_event_3 = 0.0;
 
+uniform vec2 u_local_position_4 = vec2(0.0,0.0);
+uniform float u_time_event_4 = 0.0;
+
+uniform vec2 u_local_position_5 = vec2(0.0,0.0);
+uniform float u_time_event_5 = 0.0;
+
+uniform vec2 u_local_position_6 = vec2(0.0,0.0);
+uniform float u_time_event_6 = 0.0;
+
+uniform vec2 u_local_position_7 = vec2(0.0,0.0);
+uniform float u_time_event_7 = 0.0;
 
 //const vec2 position_in_screen = vec2(500.0,250.0);
+
 
 float get_slope_of_wave(in float dist_to_center)
 {
@@ -54,6 +66,52 @@ float get_height_from_dist_to_center_of_wave(in float dist_to_center)
 
 }
 
+vec2 calc_change_of_uv_ambiental_waves(in float time, in vec2 uv)
+{
+	vec2 cPos = uv;
+	
+	cPos *= u_rect_size;///length(resolution)*10.0;
+	
+//	cPos -= vec2(position.x,position.y);
+	
+	float cLength = length(cPos);
+	
+	//float elapsed_time = 10.0*(time/10.0-floor(time/10.0));
+	float elapsed_time = time;
+	
+	float initial_advance = 50.0; //Para que empiece ya con un tamaño
+	
+	float dist_of_wave =  (elapsed_time*speed) + initial_advance;
+	
+	float dist_to_wave = length(cPos)-dist_of_wave;
+	
+	vec2 direct_of_wave = cPos/cLength;
+	
+	float power_of_wave = 0.0;
+	float slope_of_wave = 0.0;
+	vec3 direct_of_wave_with_slope = vec3(0.0,0.0,1.0);
+	//if (dist_to_wave<0.1)
+//	if (abs(dist_to_wave) < u_width_of_wave)
+	{
+		power_of_wave = 0.1*get_height_from_dist_to_center_of_wave(dist_to_wave);
+		slope_of_wave = get_slope_of_wave(dist_to_wave);
+		if (slope_of_wave>0.0)
+		{
+			direct_of_wave_with_slope = vec3((direct_of_wave)*slope_of_wave,1.0);
+		}
+		else
+		{
+			direct_of_wave_with_slope = vec3((direct_of_wave)*slope_of_wave,1.0);
+		}
+		
+	}
+	
+	vec2 change_of_uv = max_power_of_wave*power_of_wave*direct_of_wave;
+	
+	return change_of_uv;
+}
+
+
 float get_power_of_wave(in vec2 position, in vec2 uv, in float time, out vec2 direct_of_wave, out vec3 direct_of_wave_with_slope)
 {
 	vec2 cPos = uv;
@@ -73,7 +131,9 @@ float get_power_of_wave(in vec2 position, in vec2 uv, in float time, out vec2 di
 	//float elapsed_time = 10.0*(time/10.0-floor(time/10.0));
 	float elapsed_time = time;
 	
-	float dist_of_wave =  (elapsed_time*speed);
+	float initial_advance = 50.0; //Para que empiece ya con un tamaño
+	
+	float dist_of_wave =  (elapsed_time*speed) + initial_advance;
 	
 	float dist_to_wave = length(cPos)-dist_of_wave;
 	
@@ -156,36 +216,98 @@ void fragment() {
 	vec3 sun_direction = vec3(1.0,0.0,-1.0);
 	vec3 sun_direction_norm = sun_direction/length(sun_direction);
 
+	float light_factor_of_wave = 0.0;
+	float light_factor_of_wave_2 = 0.0;
+	float light_factor_of_wave_3 = 0.0;
+	float light_factor_of_wave_4 = 0.0;
+	float light_factor_of_wave_5 = 0.0;
+	float light_factor_of_wave_6 = 0.0;
+	float light_factor_of_wave_7 = 0.0;
+	
+
 	vec3  direct_of_wave_with_slope;
 	vec3  direct_of_wave_with_slope_2;
 	vec3  direct_of_wave_with_slope_3;
+	vec3  direct_of_wave_with_slope_4;
+	vec3  direct_of_wave_with_slope_5;
+	vec3  direct_of_wave_with_slope_6;
+	vec3  direct_of_wave_with_slope_7;
 
 
-	vec2 change_uv = calc_change_of_uv(u_time_event, u_local_position, UV, direct_of_wave_with_slope);
-	float change_uv_length = length(change_uv);
-	uv += change_uv;
-	uv += calc_change_of_uv(u_time_event_2, u_local_position_2, UV, direct_of_wave_with_slope_2);
-	uv += calc_change_of_uv(u_time_event_3, u_local_position_3, UV, direct_of_wave_with_slope_3 );
 
+	float max_sum_power_of_wave = max_power_of_wave*5.0;
 	
-	//vec4 color_change =  vec4(-0.05,-0.05,-0.05, 1.0)*change_uv_length/max_power_of_wave;
-	
-	float color_change_intensity_param = 0.05;
+	float color_change_intensity_param = 0.1;
 	vec4 color_change_combi = vec4(-1.0,-1.0,-1.0,0.0);
 	float flat_sea_factor = dot(sun_direction_norm,vec3(0.0, 0.0, 1.0)); //Para q lo q no es ola, no cambie
-	float light_factor_of_wave = dot(sun_direction_norm,direct_of_wave_with_slope)-flat_sea_factor;
-	float light_factor_of_wave_2 = dot(sun_direction_norm,direct_of_wave_with_slope_2)-flat_sea_factor;
-	float light_factor_of_wave_3 = dot(sun_direction_norm,direct_of_wave_with_slope_3)-flat_sea_factor;
+	
+	vec2 change_uv = calc_change_of_uv(u_time_event, u_local_position, UV, direct_of_wave_with_slope);
+	light_factor_of_wave = dot(sun_direction_norm,direct_of_wave_with_slope)-flat_sea_factor;
+//	float change_uv_length = length(change_uv);
+	if (length(change_uv)<max_sum_power_of_wave)
+	{
+		change_uv += calc_change_of_uv(u_time_event_2, u_local_position_2, UV, direct_of_wave_with_slope_2);		
+		light_factor_of_wave_2 = dot(sun_direction_norm,direct_of_wave_with_slope_2)-flat_sea_factor;
+	}
+	if (length(change_uv)<max_sum_power_of_wave)
+	{
+		change_uv += calc_change_of_uv(u_time_event_3, u_local_position_3, UV, direct_of_wave_with_slope_3 );
+		light_factor_of_wave_3 = dot(sun_direction_norm,direct_of_wave_with_slope_3)-flat_sea_factor;
+	}
+	if (length(change_uv)<max_sum_power_of_wave)
+	{
+		change_uv += calc_change_of_uv(u_time_event_4, u_local_position_4, UV, direct_of_wave_with_slope_4 );
+		light_factor_of_wave_4 = dot(sun_direction_norm,direct_of_wave_with_slope_4)-flat_sea_factor;
+	}
+	if (length(change_uv)<max_sum_power_of_wave)
+	{
+		change_uv += calc_change_of_uv(u_time_event_5, u_local_position_5, UV, direct_of_wave_with_slope_5 );
+		light_factor_of_wave_5 = dot(sun_direction_norm,direct_of_wave_with_slope_5)-flat_sea_factor;
+	}
+	if (length(change_uv)<max_sum_power_of_wave)
+	{
+		change_uv += calc_change_of_uv(u_time_event_6, u_local_position_6, UV, direct_of_wave_with_slope_6 );
+		light_factor_of_wave_6 = dot(sun_direction_norm,direct_of_wave_with_slope_6)-flat_sea_factor;
+	}
+	if (length(change_uv)<max_sum_power_of_wave)
+	{
+		change_uv += calc_change_of_uv(u_time_event_7, u_local_position_7, UV, direct_of_wave_with_slope_7 );
+		light_factor_of_wave_7 = dot(sun_direction_norm,direct_of_wave_with_slope_7)-flat_sea_factor;
+	}
+	
+	
+	
+	uv += change_uv;
+	
+	uv += calc_change_of_uv_ambiental_waves(TIME,UV);
+//	uv += calc_change_of_uv(u_time_event_2, u_local_position_2, UV, direct_of_wave_with_slope_2);
+//	uv += calc_change_of_uv(u_time_event_3, u_local_position_3, UV, direct_of_wave_with_slope_3 );
+//	uv += calc_change_of_uv(u_time_event_4, u_local_position_4, UV, direct_of_wave_with_slope_4 );
+//	uv += calc_change_of_uv(u_time_event_5, u_local_position_5, UV, direct_of_wave_with_slope_5 );
+//	uv += calc_change_of_uv(u_time_event_6, u_local_position_6, UV, direct_of_wave_with_slope_6 );
+//	uv += calc_change_of_uv(u_time_event_7, u_local_position_7, UV, direct_of_wave_with_slope_7 );
+	//vec4 color_change =  vec4(-0.05,-0.05,-0.05, 1.0)*change_uv_length/max_power_of_wave;
+	
+
+	
 	
 //	float medium_factor_of_wave = (light_factor_of_wave + light_factor_of_wave_2 + light_factor_of_wave_3)/3.0;
 	
 	vec4 color_change =  color_change_combi*color_change_intensity_param*light_factor_of_wave;
 	vec4 color_change_2 =  color_change_combi*color_change_intensity_param*light_factor_of_wave_2;
 	vec4 color_change_3 =  color_change_combi*color_change_intensity_param*light_factor_of_wave_3;
+	vec4 color_change_4 =  color_change_combi*color_change_intensity_param*light_factor_of_wave_4;
+	vec4 color_change_5 =  color_change_combi*color_change_intensity_param*light_factor_of_wave_5;
+	vec4 color_change_6 =  color_change_combi*color_change_intensity_param*light_factor_of_wave_6;
+	vec4 color_change_7 =  color_change_combi*color_change_intensity_param*light_factor_of_wave_7;
 	
 	vec4 sum_of_color_change = color_change;
 	sum_of_color_change+=color_change_2;
 	sum_of_color_change+=color_change_3;
+	sum_of_color_change+=color_change_4;
+	sum_of_color_change+=color_change_5;
+	sum_of_color_change+=color_change_6;
+	sum_of_color_change+=color_change_7;
 	
 	
 	

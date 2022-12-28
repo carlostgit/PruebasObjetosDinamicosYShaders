@@ -5,6 +5,8 @@ extends RigidBody2D
 # var a = 2
 # var b = "text"
 
+signal new_wave(screen_position)
+
 var _applying_torque = 0.0
 var _applying_force = Vector2(0.0,0.0)
 
@@ -22,6 +24,8 @@ var _mouse_pressed = false
 
 var _last_row_point:Vector2 = Vector2()
 var _last_row_point_time:float = 0.0
+
+var _last_wave_effect_time:float = 0.0
 
 #var _last_mouse_pressed_position = Vector2(0.0,0.0)
 
@@ -99,7 +103,7 @@ func _process(delta):
 			
 			change_row_position(row_movement_vect ,row_position)
 	
-
+	process_wave_effect()
 #	pass
 
 func _input(event):
@@ -304,3 +308,10 @@ func change_row_position(row_movement_vect:Vector2 ,row_position:Vector2):
 	var right_hand_position_in_player = get_global_transform().affine_inverse()*($Row/RightHand.global_position)
 	$Line2DRightArm.set_point_position(0,right_hand_position_in_player)
 	
+func process_wave_effect():
+	var time = float(Time.get_ticks_msec())*0.001
+	var min_secs_between_waves = 3.0;
+	if (time - _last_wave_effect_time>min_secs_between_waves):
+		var screen_coord_0 = get_viewport_transform() * self.global_position
+		_last_wave_effect_time = time
+		emit_signal('new_wave',screen_coord_0)
