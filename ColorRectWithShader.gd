@@ -8,11 +8,18 @@ extends ColorRect
 var wave_index = 0
 var max_num_of_waves = 7
 
+var _init_time = 0.0
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	_init_time  = (float(OS.get_ticks_msec())/1000.0)
+	
 	var rect_size = self.get_rect().size
 #	var rect_size = self.get_rect().size*self.scale
 	material.set_shader_param("u_rect_size", rect_size)
+	
+	
+	
 	pass # Replace with function body.
 
 
@@ -103,7 +110,10 @@ func set_new_wave(screen_position:Vector2):
 		#y cuidado también con el orden de las transformaciones
 		var local_from_screen = get_global_transform().affine_inverse()*((get_viewport_transform().affine_inverse())*(screen_position))
 	
-		var time_event  = (float(OS.get_ticks_msec())/1000.0)
+#		Tengo que averiguar de dónde sale la diferencia entre el time de aquí, y el del shader
+#		Tal vez tenga q capturar el time del momento en el que se crea el shader
+		var desynchronization_extra_time = -_init_time
+		var time_event  = (float(OS.get_ticks_msec())/1000.0)+desynchronization_extra_time
 		#var time_event = Time.get_unix_time_from_system()
 		if (0==wave_index):
 			material.set_shader_param("u_time_event", time_event)

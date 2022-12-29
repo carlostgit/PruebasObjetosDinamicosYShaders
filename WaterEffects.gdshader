@@ -9,54 +9,49 @@ shader_type canvas_item;
 
 
 const float speed = 50.0;
-const float u_width_of_wave = 50.00;
-const float u_width_of_mini_wave = 100.00;
+const float u_width_of_wave = 10.00;
+const float u_width_of_ambient_wave = 100.00;
+const float u_width_of_mini_wave = 10.00;
+const float max_power_of_wave = 0.002;
+const float max_power_of_ambient_wave = 0.005;
 const float max_power_of_mini_wave = 0.001;
-const float max_power_of_wave = 0.005;
+
 
 uniform vec2 u_rect_size = vec2(64.0,64.0);
 
 uniform vec2 u_local_position = vec2(0.0,0.0);
-uniform float u_time_event = 0.0;
+uniform float u_time_event = -99999999999.0;
 
 uniform vec2 u_local_position_2 = vec2(0.0,0.0);
-uniform float u_time_event_2 = 0.0;
+uniform float u_time_event_2 = -99999999999.0;
 
 uniform vec2 u_local_position_3 = vec2(0.0,0.0);
-uniform float u_time_event_3 = 0.0;
+uniform float u_time_event_3 = -99999999999.0;
 
 uniform vec2 u_local_position_4 = vec2(0.0,0.0);
-uniform float u_time_event_4 = 0.0;
+uniform float u_time_event_4 = -99999999999.0;
 
 uniform vec2 u_local_position_5 = vec2(0.0,0.0);
-uniform float u_time_event_5 = 0.0;
+uniform float u_time_event_5 = -99999999999.0;
 
 uniform vec2 u_local_position_6 = vec2(0.0,0.0);
-uniform float u_time_event_6 = 0.0;
+uniform float u_time_event_6 = -99999999999.0;
 
 uniform vec2 u_local_position_7 = vec2(0.0,0.0);
-uniform float u_time_event_7 = 0.0;
+uniform float u_time_event_7 = -99999999999.0;
 
 //const vec2 position_in_screen = vec2(500.0,250.0);
 
 
-float get_slope_of_wave(in float dist_to_center)
+float get_slope_of_wave(in float dist_to_center, in float width_of_wave)
 {
 	//cosin wave
-	float sin_wave = -0.5*(1.0+sin((dist_to_center*3.149/u_width_of_wave)));
+	float sin_wave = -0.5*(1.0+cos((dist_to_center*3.14159/width_of_wave)));
 	
 	return sin_wave;
 }
 
-float get_slope_of_mini_wave(in float dist_to_center)
-{
-	//cosin wave
-	float sin_wave = -0.5*(1.0+sin((dist_to_center*3.149/u_width_of_mini_wave)));
-	
-	return sin_wave;
-}
-
-float get_height_from_dist_to_center_of_wave(in float dist_to_center)
+float get_height_from_dist_to_center_of_wave(in float dist_to_center, in float width_of_wave)
 {
 	
 //	//sine wave
@@ -69,30 +64,8 @@ float get_height_from_dist_to_center_of_wave(in float dist_to_center)
 //	return pulse_wave;
 	
 	//cosin wave
-	float cos_wave = -0.5*(1.0+cos((dist_to_center*3.149/u_width_of_wave)));
+	float cos_wave = -0.5*(1.0+cos((dist_to_center*3.14159/width_of_wave)));
 	return cos_wave;
-
-
-
-}
-
-float get_height_from_dist_to_center_of_mini_wave(in float dist_to_center)
-{
-	
-//	//sine wave
-//	float sin_wave = (1.0/u_width_of_wave)*(u_width_of_wave-abs(dist_to_center))*sin(dist_to_center*2.0*3.149/u_width_of_wave);
-//	return sin_wave;
-	
-//	//pulse wave
-//	float dist_normalized = dist_to_center/u_width_of_wave;
-//	float pulse_wave = 1.0-dist_normalized*dist_normalized*(3.0-2.0*dist_normalized);
-//	return pulse_wave;
-	
-	//cosin wave
-	float cos_wave = -0.5*(1.0+cos((dist_to_center*3.149/u_width_of_mini_wave)));
-	return cos_wave;
-
-
 
 }
 
@@ -109,7 +82,7 @@ vec2 calc_change_of_uv_ambiental_waves(in float time, in vec2 uv, out vec3 direc
 	//float elapsed_time = 10.0*(time/10.0-floor(time/10.0));
 	float elapsed_time = time;
 	
-	float initial_advance = 50.0; //Para que empiece ya con un tamaño
+	float initial_advance = 0.0; //Para que empiece ya con un tamaño
 	
 	float dist_of_wave =  (elapsed_time*speed) + initial_advance;
 	
@@ -123,8 +96,8 @@ vec2 calc_change_of_uv_ambiental_waves(in float time, in vec2 uv, out vec3 direc
 	//if (dist_to_wave<0.1)
 //	if (abs(dist_to_wave) < u_width_of_wave)
 	{
-		power_of_wave = 1.0*get_height_from_dist_to_center_of_wave(dist_to_wave);
-		slope_of_wave = get_slope_of_wave(dist_to_wave);
+		power_of_wave = 1.0*get_height_from_dist_to_center_of_wave(dist_to_wave, u_width_of_ambient_wave);
+		slope_of_wave = get_slope_of_wave(dist_to_wave, u_width_of_ambient_wave);
 		if (slope_of_wave>0.0)
 		{
 			direct_of_wave_with_slope = vec3((direct_of_wave)*slope_of_wave,1.0);
@@ -170,16 +143,16 @@ vec2 calc_change_of_uv_ambiental_mini_waves(in float time, in vec2 uv, out vec3 
 	
 	float power_of_wave = 0.0;
 	float slope_of_wave = 0.0;
-	float power_of_wave2 = 0.0;
-	float slope_of_wave2 = 0.0;
+//	float power_of_wave2 = 0.0;
+//	float slope_of_wave2 = 0.0;
 //	vec3 direct_of_wave_with_slope = vec3(0.0,0.0,1.0);
 	//if (dist_to_wave<0.1)
 //	if (abs(dist_to_wave) < u_width_of_wave)
 	{
-		power_of_wave = 1.0*get_height_from_dist_to_center_of_mini_wave(dist_to_wave);
-		slope_of_wave = get_slope_of_mini_wave(dist_to_wave);
-		power_of_wave2 = 1.0*get_height_from_dist_to_center_of_mini_wave(dist_to_wave2);
-		slope_of_wave2 = get_slope_of_mini_wave(dist_to_wave2);
+		power_of_wave = 1.0*get_height_from_dist_to_center_of_wave(dist_to_wave, u_width_of_mini_wave);
+		slope_of_wave = get_slope_of_wave(dist_to_wave, u_width_of_mini_wave);
+//		power_of_wave2 = 1.0*get_height_from_dist_to_center_of_mini_wave(dist_to_wave2);
+//		slope_of_wave2 = get_slope_of_mini_wave(dist_to_wave2);
 		
 		if (slope_of_wave>0.0)
 		{
@@ -228,7 +201,7 @@ float get_power_of_wave(in vec2 position, in vec2 uv, in float time, out vec2 di
 	//float elapsed_time = 10.0*(time/10.0-floor(time/10.0));
 	float elapsed_time = time;
 	
-	float initial_advance = 50.0; //Para que empiece ya con un tamaño
+	float initial_advance = -u_width_of_wave; //para que empiece suave 
 	
 	float dist_of_wave =  (elapsed_time*speed) + initial_advance;
 	
@@ -240,19 +213,29 @@ float get_power_of_wave(in vec2 position, in vec2 uv, in float time, out vec2 di
 	float slope_of_wave = 0.0;
 	direct_of_wave_with_slope = vec3(0.0,0.0,1.0);
 	//if (dist_to_wave<0.1)
-	if (abs(dist_to_wave) < u_width_of_wave)
+	
+	//La fuerza de estas olas disminuirá con a distancia al origen
+	float max_dist_of_wave = 150.0;
+	float diminishing_factor = 0.0;
+	if (dist_of_wave<max_dist_of_wave)
 	{
-		power_of_wave = get_height_from_dist_to_center_of_wave(dist_to_wave);
-		slope_of_wave = get_slope_of_wave(dist_to_wave);
-		if (slope_of_wave>0.0)
+		diminishing_factor = 1.0 -(dist_of_wave/max_dist_of_wave);
+	
+	
+		if (abs(dist_to_wave) < u_width_of_wave)
 		{
-			direct_of_wave_with_slope = vec3((direct_of_wave)*slope_of_wave,1.0);
+			power_of_wave = diminishing_factor*get_height_from_dist_to_center_of_wave(dist_to_wave, u_width_of_wave);
+			slope_of_wave = diminishing_factor*get_slope_of_wave(dist_to_wave, u_width_of_wave);
+			if (slope_of_wave>0.0)
+			{
+				direct_of_wave_with_slope = vec3((direct_of_wave)*slope_of_wave,1.0);
+			}
+			else
+			{
+				direct_of_wave_with_slope = vec3((direct_of_wave)*slope_of_wave,1.0);
+			}
+			
 		}
-		else
-		{
-			direct_of_wave_with_slope = vec3((direct_of_wave)*slope_of_wave,1.0);
-		}
-		
 	}
 	
 	return power_of_wave;
@@ -406,7 +389,7 @@ void fragment() {
 	vec4 color_change_7 =  color_change_combi*color_change_intensity_param*light_factor_of_wave_7;
 	
 	vec4 color_change_ambient =  color_change_combi*color_change_intensity_param*light_factor_of_wave_ambient;
-	vec4 color_change_ambient_mini =  color_change_combi*color_change_intensity_param*light_factor_of_wave_ambient_mini;
+//	vec4 color_change_ambient_mini =  color_change_combi*color_change_intensity_param*light_factor_of_wave_ambient_mini;
 	
 	vec4 sum_of_color_change = color_change;
 	sum_of_color_change+=color_change_2;
@@ -417,7 +400,7 @@ void fragment() {
 	sum_of_color_change+=color_change_7;
 	
 	sum_of_color_change+=color_change_ambient;
-	sum_of_color_change+=color_change_ambient_mini;
+//	sum_of_color_change+=color_change_ambient_mini;
 	
 	
 //	for (int i=0;i<100;i++)

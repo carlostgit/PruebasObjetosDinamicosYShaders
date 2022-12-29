@@ -36,6 +36,8 @@ var _line_2D_damp_force:Line2D = null
 var _line_2D_to_click:Line2D = null
 var _line_2D_from_click_to_unclick:Line2D = null
 
+var _line_2D_to_island = null
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	
@@ -46,12 +48,17 @@ func _ready():
 	_line_2D_damp_force = Line2D.new()
 	_line_2D_to_click = Line2D.new()
 	_line_2D_from_click_to_unclick = Line2D.new()
+	
+	_line_2D_to_island = Line2D.new()
 
 	self.get_parent().call_deferred("add_child",_line_2D_local)
 	self.get_parent().call_deferred("add_child",_line_2D)
 	self.get_parent().call_deferred("add_child",_line_2D_damp_force)
 	self.get_parent().call_deferred("add_child",_line_2D_to_click)
 	self.get_parent().call_deferred("add_child",_line_2D_from_click_to_unclick)
+	
+	self.get_parent().call_deferred("add_child",_line_2D_to_island)
+	
 	
 	pass # Replace with function body.
 
@@ -61,10 +68,10 @@ func _process(delta):
 	var sum_of_force = Vector2(0,0)
 	var sum_of_torque = 0.0
 	if _left_key:
-		sum_of_force += (Vector2(-100,0))
+		sum_of_torque += -1000.0
 		print("LEFT was pressed")
 	if _right_key:
-		sum_of_force += (Vector2(100,0))
+		sum_of_torque += 1000.0
 		print("RIGHT was pressed")
 	if _up_key:
 		sum_of_force += (Vector2(0,-100))
@@ -73,10 +80,10 @@ func _process(delta):
 		sum_of_force += (Vector2(0,100))
 		print("DOWN was pressed")
 	if _home_key:
-		sum_of_torque += -1000.0
+		sum_of_force += (Vector2(-100,0))
 		print("HOME was pressed")
 	if _end_key:
-		sum_of_torque += 1000.0
+		sum_of_force += (Vector2(100,0))
 		print("END was pressed")
 
 	
@@ -104,7 +111,9 @@ func _process(delta):
 			change_row_position(row_movement_vect ,row_position)
 	
 	process_wave_effect()
-#	pass
+	
+	draw_compass()
+	
 
 func _input(event):
 #	if event is InputEventKey and event.pressed:
@@ -310,8 +319,30 @@ func change_row_position(row_movement_vect:Vector2 ,row_position:Vector2):
 	
 func process_wave_effect():
 	var time = float(Time.get_ticks_msec())*0.001
-	var min_secs_between_waves = 3.0;
+	var min_secs_between_waves = 1.0;
 	if (time - _last_wave_effect_time>min_secs_between_waves):
 		var screen_coord_0 = get_viewport_transform() * self.global_position
 		_last_wave_effect_time = time
 		emit_signal('new_wave',screen_coord_0)
+
+#	Flecha en dirección de la isla
+func draw_compass():
+
+	var local_of_pos_0 = get_global_transform().affine_inverse()*(Vector2(0,0))
+	var local_of_self = get_global_transform().affine_inverse()*(self.position)
+	var local_of_compass = local_of_self+$Arrow.position
+	
+	var to_pos_0_vec:Vector2 = local_of_pos_0-local_of_compass
+	var angle_rad = atan2(to_pos_0_vec.y,to_pos_0_vec.x)
+	
+	$Arrow.rotation = angle_rad
+	
+	_line_2D_to_island.clear_points()
+	var compass_position = self.transform.basis_xform(Vector2(80,-200))
+	_line_2D_to_island.add_point(self.position+compass_position)
+	
+#	La isla está más o menos en el centro de la escena
+	_line_2D_to_island.add_point(Vector2(0,0))
+
+	
+#	pass
