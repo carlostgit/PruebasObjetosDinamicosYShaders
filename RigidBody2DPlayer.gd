@@ -295,7 +295,7 @@ func change_row_position(row_movement_vect:Vector2 ,row_position:Vector2):
 		$Row/LeftPaddle.modulate = Color(1.0,1.0,1.0,1.0)
 	else:
 		$Row.rotation = $Row.rotation + PI
-		$Row/RightPaddle.modulate = Color(1.0,1.0,1.0,0.5)
+		$Row/RightPaddle.modulate = Color(1.0,1.0,1.0,1.0)
 		$Row/LeftPaddle.modulate = Color(1.0,1.0,1.0,0.5)
 		
 	#Ahora la posición del brazo
