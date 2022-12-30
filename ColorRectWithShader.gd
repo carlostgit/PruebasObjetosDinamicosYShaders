@@ -24,7 +24,11 @@ func _ready():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
+func _process(delta):
+	
+	var time  = (float(OS.get_ticks_msec())/1000.0)
+	material.set_shader_param("u_time_outside", time)
+	
 #	pass
 
 
@@ -112,8 +116,9 @@ func set_new_wave(screen_position:Vector2):
 	
 #		Tengo que averiguar de dónde sale la diferencia entre el time de aquí, y el del shader
 #		Tal vez tenga q capturar el time del momento en el que se crea el shader
-		var desynchronization_extra_time = -_init_time
-		var time_event  = (float(OS.get_ticks_msec())/1000.0)+desynchronization_extra_time
+#		var desynchronization_extra_time = -_init_time
+#		var time_event  = (float(OS.get_ticks_msec())/1000.0)+desynchronization_extra_time
+		var time_event  = (float(OS.get_ticks_msec())/1000.0)
 		#var time_event = Time.get_unix_time_from_system()
 		if (0==wave_index):
 			material.set_shader_param("u_time_event", time_event)

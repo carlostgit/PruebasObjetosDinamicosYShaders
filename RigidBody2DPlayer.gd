@@ -30,34 +30,36 @@ var _last_wave_effect_time:float = 0.0
 #var _last_mouse_pressed_position = Vector2(0.0,0.0)
 
 #para debugear
-var _line_2D_local:Line2D = null
-var _line_2D:Line2D = null
-var _line_2D_damp_force:Line2D = null
-var _line_2D_to_click:Line2D = null
-var _line_2D_from_click_to_unclick:Line2D = null
+#var _line_2D_local:Line2D = null
+#var _line_2D:Line2D = null
+#var _line_2D_damp_force:Line2D = null
+#var _line_2D_to_click:Line2D = null
+#var _line_2D_from_click_to_unclick:Line2D = null
+#
+#var _line_2D_to_island = null
 
-var _line_2D_to_island = null
+var _goal_achieved = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	
 #	self.inertia = 5.0*self.inertia
 	
-	_line_2D_local = Line2D.new()
-	_line_2D = Line2D.new()
-	_line_2D_damp_force = Line2D.new()
-	_line_2D_to_click = Line2D.new()
-	_line_2D_from_click_to_unclick = Line2D.new()
-	
-	_line_2D_to_island = Line2D.new()
-
-	self.get_parent().call_deferred("add_child",_line_2D_local)
-	self.get_parent().call_deferred("add_child",_line_2D)
-	self.get_parent().call_deferred("add_child",_line_2D_damp_force)
-	self.get_parent().call_deferred("add_child",_line_2D_to_click)
-	self.get_parent().call_deferred("add_child",_line_2D_from_click_to_unclick)
-	
-	self.get_parent().call_deferred("add_child",_line_2D_to_island)
+#	_line_2D_local = Line2D.new()
+#	_line_2D = Line2D.new()
+#	_line_2D_damp_force = Line2D.new()
+#	_line_2D_to_click = Line2D.new()
+#	_line_2D_from_click_to_unclick = Line2D.new()
+#
+#	_line_2D_to_island = Line2D.new()
+#
+#	self.get_parent().call_deferred("add_child",_line_2D_local)
+#	self.get_parent().call_deferred("add_child",_line_2D)
+#	self.get_parent().call_deferred("add_child",_line_2D_damp_force)
+#	self.get_parent().call_deferred("add_child",_line_2D_to_click)
+#	self.get_parent().call_deferred("add_child",_line_2D_from_click_to_unclick)
+#
+#	self.get_parent().call_deferred("add_child",_line_2D_to_island)
 	
 	
 	pass # Replace with function body.
@@ -69,22 +71,22 @@ func _process(delta):
 	var sum_of_torque = 0.0
 	if _left_key:
 		sum_of_torque += -1000.0
-		print("LEFT was pressed")
+#		print("LEFT was pressed")
 	if _right_key:
 		sum_of_torque += 1000.0
-		print("RIGHT was pressed")
+#		print("RIGHT was pressed")
 	if _up_key:
 		sum_of_force += (Vector2(0,-100))
-		print("UP was pressed")
+#		print("UP was pressed")
 	if _down_key:
 		sum_of_force += (Vector2(0,100))
-		print("DOWN was pressed")
+#		print("DOWN was pressed")
 	if _home_key:
 		sum_of_force += (Vector2(-100,0))
-		print("HOME was pressed")
+#		print("HOME was pressed")
 	if _end_key:
 		sum_of_force += (Vector2(100,0))
-		print("END was pressed")
+#		print("END was pressed")
 
 	
 	self.apply_force(sum_of_force)
@@ -97,10 +99,10 @@ func _process(delta):
 		if 0.0 !=_last_row_point_time:
 #			var new_row_point_time = float(Time.get_ticks_msec())*0.001
 			var new_row_point = self.get_parent().get_local_mouse_position()
-			_line_2D_from_click_to_unclick.clear_points()
-			_line_2D_from_click_to_unclick.default_color = Color(1,0.5,0.5, 0.3)
-			_line_2D_from_click_to_unclick.add_point(_last_row_point)
-			_line_2D_from_click_to_unclick.add_point(new_row_point)
+#			_line_2D_from_click_to_unclick.clear_points()
+#			_line_2D_from_click_to_unclick.default_color = Color(1,0.5,0.5, 0.3)
+#			_line_2D_from_click_to_unclick.add_point(_last_row_point)
+#			_line_2D_from_click_to_unclick.add_point(new_row_point)
 			var row_movement_vect = new_row_point-_last_row_point
 #			var elapsed_time = new_row_point_time - _last_row_point_time
 			var row_position = self.get_parent().get_local_mouse_position()
@@ -114,6 +116,7 @@ func _process(delta):
 	
 	draw_compass()
 	
+	control_camera()
 
 func _input(event):
 #	if event is InputEventKey and event.pressed:
@@ -148,21 +151,21 @@ func _input(event):
 		_end_key = false;
 
 	if event is InputEventMouseButton:
-		_line_2D_to_click.clear_points()
-		_line_2D_to_click.add_point(self.position)
-#		_line_2D_to_click.add_point(self.get_global_mouse_position())
-		_line_2D_to_click.add_point(self.get_parent().get_local_mouse_position())
+#		_line_2D_to_click.clear_points()
+#		_line_2D_to_click.add_point(self.position)
+##		_line_2D_to_click.add_point(self.get_global_mouse_position())
+#		_line_2D_to_click.add_point(self.get_parent().get_local_mouse_position())
 		
-		var lateral_dir_vector = Vector2(1.0,0.0)
-		var local_lateral_dir_vector = self.transform.basis_xform(lateral_dir_vector)	
+#		var lateral_dir_vector = Vector2(1.0,0.0)
+#		var local_lateral_dir_vector = self.transform.basis_xform(lateral_dir_vector)	
 		
-		var to_click_vector = self.get_parent().get_local_mouse_position() - self.position
-		var horizontal_proyection_length = lateral_dir_vector.dot(to_click_vector)
+#		var to_click_vector = self.get_parent().get_local_mouse_position() - self.position
+#		var horizontal_proyection_length = lateral_dir_vector.dot(to_click_vector)
 		
-		if(horizontal_proyection_length > 0.0):
-			_line_2D_to_click.default_color = Color(1,0,0,0.3)
-		else:
-			_line_2D_to_click.default_color = Color(0,1,0,0.3)
+#		if(horizontal_proyection_length > 0.0):
+#			_line_2D_to_click.default_color = Color(1,0,0,0.3)
+#		else:
+#			_line_2D_to_click.default_color = Color(0,1,0,0.3)
 		
 #		if event.pressed:
 #			_line_2D_from_click_to_unclick.clear_points()
@@ -238,23 +241,23 @@ func apply_lateral_damp_force():
 	var local_lateral_dir_vector = self.transform.basis_xform(lateral_dir_vector)	
 	
 	#
-	_line_2D_local.clear_points()
-	_line_2D.clear_points()
-	_line_2D_damp_force.clear_points()
-	
-	
-	_line_2D_local.add_point(self.position + Vector2(0,0))
-	_line_2D_local.add_point(self.position + local_lateral_dir_vector*100)
-	_line_2D_local.default_color = Color(1,1,0,0.3)
-	
-	_line_2D.add_point(self.position + Vector2(0,0))
-	_line_2D.add_point(self.position + lateral_dir_vector*100)
-	_line_2D.default_color = Color(1.0,0.0,0.0,0.3)
-	
-	_line_2D_damp_force.add_point(self.position + Vector2(0,0))
-	_line_2D_damp_force.add_point(self.position + _affecting_extra_lateral_damp_force*100)
-	_line_2D_damp_force.default_color = Color(0.0,1.0,0.0,0.3)
-	#
+#	_line_2D_local.clear_points()
+#	_line_2D.clear_points()
+#	_line_2D_damp_force.clear_points()
+#
+#
+#	_line_2D_local.add_point(self.position + Vector2(0,0))
+#	_line_2D_local.add_point(self.position + local_lateral_dir_vector*100)
+#	_line_2D_local.default_color = Color(1,1,0,0.3)
+#
+#	_line_2D.add_point(self.position + Vector2(0,0))
+#	_line_2D.add_point(self.position + lateral_dir_vector*100)
+#	_line_2D.default_color = Color(1.0,0.0,0.0,0.3)
+#
+#	_line_2D_damp_force.add_point(self.position + Vector2(0,0))
+#	_line_2D_damp_force.add_point(self.position + _affecting_extra_lateral_damp_force*100)
+#	_line_2D_damp_force.default_color = Color(0.0,1.0,0.0,0.3)
+#	#
 	
 	var lateral_velocity_amount = local_lateral_dir_vector.dot(self.linear_velocity)
 	var lateral_velocity = lateral_velocity_amount*local_lateral_dir_vector
@@ -327,8 +330,9 @@ func process_wave_effect():
 
 #	Flecha en dirección de la isla
 func draw_compass():
-
-	var local_of_pos_0 = get_global_transform().affine_inverse()*(Vector2(0,0))
+	
+	var goal_position = get_parent().get_node("Area2DGoal").position
+	var local_of_pos_0 = get_global_transform().affine_inverse()*(goal_position)
 	var local_of_self = get_global_transform().affine_inverse()*(self.position)
 	var local_of_compass = local_of_self+$Arrow.position
 	
@@ -337,12 +341,48 @@ func draw_compass():
 	
 	$Arrow.rotation = angle_rad
 	
-	_line_2D_to_island.clear_points()
-	var compass_position = self.transform.basis_xform(Vector2(80,-200))
-	_line_2D_to_island.add_point(self.position+compass_position)
+#	_line_2D_to_island.clear_points()
+#	var compass_position = self.transform.basis_xform(Vector2(80,-200))
+#	_line_2D_to_island.add_point(self.position+compass_position)
 	
 #	La isla está más o menos en el centro de la escena
-	_line_2D_to_island.add_point(Vector2(0,0))
+#	_line_2D_to_island.add_point(Vector2(0,0))
 
 	
 #	pass
+
+
+func _on_Area2DGoal_body_entered(body):
+	if self==body:
+#		print("Success!!!")
+		
+#		var local_of_pos_0 = get_global_transform().affine_inverse()*(goal_position)
+#		var lateral_dir_vector = Vector2(1.0,0.0)
+#		var local_lateral_dir_vector = self.transform.basis_xform(lateral_dir_vector)	
+#		var angle = atan2(local_lateral_dir_vector.y,local_lateral_dir_vector.x)
+		var node_label_price = get_parent().get_node_or_null("LabelPrice")
+		if node_label_price:
+			node_label_price.visible = true
+			
+		_goal_achieved = true
+#		$Camera2D.global_rotation = 0
+#		$Camera2D.global_position = goal_position
+#		$Camera2D.zoom = Vector2(3,3)
+#
+func control_camera():
+	if _goal_achieved:
+		var goal_position = get_parent().get_node("Area2DGoal").position
+#		if $Camera2D.global_rotation<-2:
+#			$Camera2D.global_rotation += 1
+#		if $Camera2D.global_rotation>2:
+#			$Camera2D.global_rotation -= 1
+#		else:
+		$Camera2D.global_rotation = lerp ( $Camera2D.global_rotation, 0, 0.1 )
+		
+#		$Camera2D.global_position = goal_position
+		$Camera2D.global_position = lerp ( $Camera2D.global_position, goal_position, 0.1 )
+		
+#		$Camera2D.zoom = Vector2(4,4)
+		$Camera2D.zoom = lerp ( $Camera2D.zoom, Vector2(6,6), 0.1 )
+			
+		

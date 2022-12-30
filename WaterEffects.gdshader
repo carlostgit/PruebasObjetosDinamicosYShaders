@@ -9,13 +9,16 @@ shader_type canvas_item;
 
 
 const float speed = 50.0;
-const float u_width_of_wave = 10.00;
+const float u_width_of_wave = 20.00;
 const float u_width_of_ambient_wave = 100.00;
 const float u_width_of_mini_wave = 10.00;
-const float max_power_of_wave = 0.002;
-const float max_power_of_ambient_wave = 0.005;
-const float max_power_of_mini_wave = 0.001;
+const float max_power_of_wave = 0.006;
+const float max_power_of_ambient_wave = 0.006;
+const float max_power_of_mini_wave = 0.002;
 
+
+uniform float u_init_time = -99999999999.0;
+uniform float u_time_outside = -99999999999.0;
 
 uniform vec2 u_rect_size = vec2(64.0,64.0);
 
@@ -201,7 +204,8 @@ float get_power_of_wave(in vec2 position, in vec2 uv, in float time, out vec2 di
 	//float elapsed_time = 10.0*(time/10.0-floor(time/10.0));
 	float elapsed_time = time;
 	
-	float initial_advance = -u_width_of_wave; //para que empiece suave 
+	
+	float initial_advance = -u_width_of_wave/2.0; //para que empiece suave 
 	
 	float dist_of_wave =  (elapsed_time*speed) + initial_advance;
 	
@@ -248,7 +252,7 @@ vec2 calc_change_of_uv(in float time_event, in vec2 local_position, in vec2 loca
 	vec2 position = local_position;
 		
 	
-	float time_wave = TIME-time_event;
+	float time_wave = u_time_outside-time_event;
 	
 	vec2 direct_of_wave;
 	float power_of_wave = get_power_of_wave(position, local_uv, time_wave, direct_of_wave, direct_of_wave_with_slope);
