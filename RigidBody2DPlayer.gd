@@ -60,6 +60,8 @@ func _ready():
 #	self.get_parent().call_deferred("add_child",_line_2D_from_click_to_unclick)
 #
 #	self.get_parent().call_deferred("add_child",_line_2D_to_island)
+
+	$AnimationPlayer.play("Instructions")
 	
 	
 	pass # Replace with function body.
@@ -386,3 +388,10 @@ func control_camera():
 		$Camera2D.zoom = lerp ( $Camera2D.zoom, Vector2(6,6), 0.1 )
 			
 		
+
+
+func _on_Area2DInstructions_body_entered(body):
+	if self==body:
+		$AnimationPlayer.stop()
+		$FingerTouchingScreen.visible = false
+	pass # Replace with function body.

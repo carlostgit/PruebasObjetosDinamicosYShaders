@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=2]
+[gd_scene load_steps=45 format=2]
 
 [ext_resource path="res://kayak.png" type="Texture" id=1]
 [ext_resource path="res://KinematicScene.gdshader" type="Shader" id=2]
@@ -17,6 +17,7 @@
 [ext_resource path="res://right_paddle.png" type="Texture" id=15]
 [ext_resource path="res://head.png" type="Texture" id=16]
 [ext_resource path="res://hand.png" type="Texture" id=17]
+[ext_resource path="res://finger_touching_screen.png" type="Texture" id=18]
 
 [sub_resource type="ShaderMaterial" id=6]
 shader = ExtResource( 2 )
@@ -745,8 +746,43 @@ extents = Vector2( 3.5, 76 )
 [sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 14.5, 40.25 )
 
+[sub_resource type="Animation" id=31]
+resource_name = "Instructions"
+length = 2.0
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("FingerTouchingScreen:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 1, 1.1, 2 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 106, -58.9997 ), Vector2( 107, 48.0003 ), Vector2( -113, -82.0003 ), Vector2( -125, 52.9997 ) ]
+}
+
+[sub_resource type="Animation" id=32]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("FingerTouchingScreen:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 116, -56.9997 ) ]
+}
+
 [sub_resource type="RectangleShape2D" id=30]
 extents = Vector2( 1086, 1059.5 )
+
+[sub_resource type="RectangleShape2D" id=33]
+extents = Vector2( 191.25, 75 )
 
 [node name="KinematicScene" type="Node2D"]
 position = Vector2( 0, 12 )
@@ -806,6 +842,10 @@ gravity_scale = 0.0
 linear_damp = 0.05
 angular_damp = 0.1
 script = ExtResource( 4 )
+
+[node name="FingerTouchingScreen" type="Sprite" parent="RigidBody2DPlayer"]
+position = Vector2( 116, -56.9997 )
+texture = ExtResource( 18 )
 
 [node name="Arrow" type="Sprite" parent="RigidBody2DPlayer"]
 position = Vector2( 130, -110 )
@@ -869,6 +909,10 @@ texture = ExtResource( 12 )
 position = Vector2( -1, 15 )
 texture = ExtResource( 16 )
 
+[node name="AnimationPlayer" type="AnimationPlayer" parent="RigidBody2DPlayer"]
+anims/Instructions = SubResource( 31 )
+anims/RESET = SubResource( 32 )
+
 [node name="Area2DGoal" type="Area2D" parent="."]
 position = Vector2( -152, 798 )
 
@@ -884,6 +928,13 @@ margin_bottom = 1697.0
 rect_scale = Vector2( 10, 10 )
 text = "Felicidades! Has ganado un paseo en kayak!"
 
+[node name="Area2DInstructions" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2DInstructions"]
+position = Vector2( 2883.75, -15 )
+shape = SubResource( 33 )
+
 [connection signal="item_rect_changed" from="ColorRectWithShader" to="ColorRectWithShader" method="_on_ColorRectWithShader_item_rect_changed"]
 [connection signal="new_wave" from="RigidBody2DPlayer" to="ColorRectWithShader" method="_on_RigidBody2DPlayer_new_wave"]
 [connection signal="body_entered" from="Area2DGoal" to="RigidBody2DPlayer" method="_on_Area2DGoal_body_entered"]
+[connection signal="body_entered" from="Area2DInstructions" to="RigidBody2DPlayer" method="_on_Area2DInstructions_body_entered"]
